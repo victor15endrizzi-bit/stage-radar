@@ -53,18 +53,23 @@ def cmd_seed(store, force=False):
         store.set_setting("profile", load_yaml("profile.yaml"))
         print("Paramètres copiés depuis config/profile.yaml")
     existing = {s["id"]: s for s in store.list_sources()}
-    rows = []
+    added = updated = 0
     for s in load_yaml("sources.yaml")["sources"]:
-        row = {"id": s["id"], "name": s["name"], "kind": s["kind"], "config": s.get("config", {}),
-               "interval_minutes": s.get("interval_minutes", 30), "target": bool(s.get("target", False))}
+        tech = {"name": s["name"], "kind": s["kind"], "config": s.get("config", {}), "target": bool(s.get("target", False))}
         if s["id"] not in existing:
-            row["enabled"] = s.get("enabled", True)
-            rows.append(row)
-        elif force:
-            rows.append(row)  # met à jour la config mais garde enabled / historique
-    if rows:
-        store.insert("sources", rows, upsert_on="id")
-    print(f"{len(rows)} source(s) ajoutée(s)/mise(s) à jour.")
+            store.insert("sources", [{"id": s["id"], **tech, "enabled": s.get("enabled", True),
+                                      "interval_minutes": s.get("interval_minutes", 30)}], upsert_on="id")
+            added += 1
+            continue
+        # source connue : on met à jour la configuration technique, mais on garde
+        # ton réglage actif/inactif et la fréquence (sauf force_enabled explicite)
+        if "force_enabled" in s:
+            tech["enabled"] = bool(s["force_enabled"])
+        old = existing[s["id"]]
+        if force or any(old.get(k) != v for k, v in tech.items()):
+            store.update_source(s["id"], tech)
+            updated += 1
+    print(f"Sources : {added} ajoutée(s), {updated} mise(s) à jour.")
 
 
 def cmd_run(store, only=None, force=False):

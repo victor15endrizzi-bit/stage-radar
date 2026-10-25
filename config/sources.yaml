@@ -1,117 +1,145 @@
-# Sources surveillées. Copiées en base au premier lancement (`seed`), ensuite
-# activables / désactivables depuis la page "Sources" du tableau de bord.
+# Sources surveillées. Copiées en base à chaque passage (`seed`) : une NOUVELLE source
+# (identifiant inconnu) est ajoutée automatiquement ; une source existante garde
+# ton réglage actif/inactif et sa fréquence, modifiables depuis la page « Sources ».
 #
 # kind:
-#   moovijob : pages de liste Moovijob (HTML public, autorisé par robots.txt)
-#   workday  : API JSON publique des sites carrière Workday (myworkdayjobs.com)
-#   links    : page carrière HTML générique ; on extrait les liens d'offres via un motif (regex)
-#   email    : alertes e-mail (LinkedIn, jobs.lu, Indeed, JobTeaser...) lues dans une boîte Gmail dédiée
+#   workday         : API publique des sites carrière Workday (*.myworkdayjobs.com)
+#   oracle          : API publique Oracle Recruiting Cloud (JPMorgan, Schroders, BNY…)
+#   smartrecruiters : API publique officielle SmartRecruiters
+#   links           : page carrière HTML ; on extrait les liens d'offres via un motif (regex)
+#   moovijob        : pages de liste Moovijob (bloqué depuis GitHub : erreur 403)
+#   email           : alertes e-mail (Moovijob, LinkedIn, jobs.lu, Indeed, JobTeaser…) via Gmail
 #
-# interval_minutes : fréquence minimale entre deux passages pour cette source.
+# Toutes les sources ci-dessous ont été testées le 25/10/2026 (réponse OK + offres au Luxembourg).
 
 sources:
-  # --- Agrégateur n°1 au Luxembourg : toutes les offres de stage ---
+  # ============================================================ Workday
+  - {id: wd-deutsche-bank-dws, name: "Deutsche Bank / DWS", kind: workday, interval_minutes: 30, target: true,
+     config: {host: db.wd3.myworkdayjobs.com, tenant: db, site: DBWebsite, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-lombard-odier, name: "Lombard Odier", kind: workday, interval_minutes: 60, target: true,
+     config: {host: lombardodier.wd3.myworkdayjobs.com, tenant: lombardodier, site: Lombard_Odier_Careers, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-pgim, name: "PGIM", kind: workday, interval_minutes: 60, target: true,
+     config: {host: pru.wd5.myworkdayjobs.com, tenant: pru, site: Careers, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-wellington, name: "Wellington Management", kind: workday, interval_minutes: 60, target: true,
+     config: {host: wellington.wd5.myworkdayjobs.com, tenant: wellington, site: Campus, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-ing, name: "ING Luxembourg", kind: workday, interval_minutes: 30, target: true,
+     config: {host: ing.wd3.myworkdayjobs.com, tenant: ing, site: ICSGBLCOR, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-julius-baer, name: "Julius Baer", kind: workday, interval_minutes: 60, target: true,
+     config: {host: juliusbaer.wd3.myworkdayjobs.com, tenant: juliusbaer, site: External, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-state-street, name: "State Street", kind: workday, interval_minutes: 30, target: true,
+     config: {host: statestreet.wd1.myworkdayjobs.com, tenant: statestreet, site: Global, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-northern-trust, name: "Northern Trust", kind: workday, interval_minutes: 30, target: true,
+     config: {host: ntrs.wd1.myworkdayjobs.com, tenant: ntrs, site: northerntrust, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-fidelity, name: "Fidelity International", kind: workday, interval_minutes: 60, target: true,
+     config: {host: fil.wd3.myworkdayjobs.com, tenant: fil, site: "001", searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-citi, name: "Citi", kind: workday, interval_minutes: 60, target: true,
+     config: {host: citi.wd5.myworkdayjobs.com, tenant: citi, site: "2", searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-bbh, name: "Brown Brothers Harriman", kind: workday, interval_minutes: 60, target: true,
+     config: {host: bbh.wd5.myworkdayjobs.com, tenant: bbh, site: BBH, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-invesco, name: "Invesco", kind: workday, interval_minutes: 60, target: true,
+     config: {host: invesco.wd1.myworkdayjobs.com, tenant: invesco, site: IVZ, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-blackrock, name: "BlackRock", kind: workday, interval_minutes: 60, target: true,
+     config: {host: blackrock.wd1.myworkdayjobs.com, tenant: blackrock, site: BlackRock_Professional, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-blackstone, name: "Blackstone", kind: workday, interval_minutes: 60, target: true,
+     config: {host: blackstone.wd1.myworkdayjobs.com, tenant: blackstone, site: Blackstone_Careers, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-carlyle, name: "Carlyle", kind: workday, interval_minutes: 60, target: true,
+     config: {host: carlyle.wd1.myworkdayjobs.com, tenant: carlyle, site: Carlyle, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-capital-group, name: "Capital Group", kind: workday, interval_minutes: 120, target: true,
+     config: {host: capgroup.wd1.myworkdayjobs.com, tenant: capgroup, site: capitalgroupcareers, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-sei, name: "SEI", kind: workday, interval_minutes: 120, target: true,
+     config: {host: seic.wd1.myworkdayjobs.com, tenant: seic, site: SEI_Global_Services, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-apex, name: "Apex Group", kind: workday, interval_minutes: 60, target: true,
+     config: {host: theapexgroup.wd3.myworkdayjobs.com, tenant: theapexgroup, site: apexgroupcareers, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-pimco, name: "PIMCO", kind: workday, interval_minutes: 120, target: true,
+     config: {host: pimco.wd1.myworkdayjobs.com, tenant: pimco, site: pimco-careers, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-abrdn, name: "abrdn", kind: workday, interval_minutes: 120, target: true,
+     config: {host: abrdn.wd3.myworkdayjobs.com, tenant: abrdn, site: abrdn, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-morgan-stanley, name: "Morgan Stanley", kind: workday, interval_minutes: 120, target: true,
+     config: {host: ms.wd5.myworkdayjobs.com, tenant: ms, site: External, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-swiss-life, name: "Swiss Life", kind: workday, interval_minutes: 120,
+     config: {host: swisslife.wd3.myworkdayjobs.com, tenant: swisslife, site: Swiss_Life_International_Division_Career_Site, searches: [Luxembourg], location_must_contain: [luxemb]}}
+  - {id: wd-pwc, name: "PwC Luxembourg", kind: workday, interval_minutes: 60,
+     config: {host: pwc.wd3.myworkdayjobs.com, tenant: pwc, site: Global_Experienced_Careers, searches: [Luxembourg], location_must_contain: [luxemb]}}
+
+  # ============================================================ Oracle Recruiting Cloud
+  - {id: or-jpmorgan, name: "J.P. Morgan", kind: oracle, interval_minutes: 30, target: true,
+     config: {host: jpmc.fa.oraclecloud.com, site: CX_1001, company: "J.P. Morgan", searches: [Luxembourg]}}
+  - {id: or-schroders, name: "Schroders", kind: oracle, interval_minutes: 60, target: true,
+     config: {host: ekbq.fa.em2.oraclecloud.com, site: CX_2, company: "Schroders", searches: [Luxembourg]}}
+  - {id: or-bny, name: "BNY", kind: oracle, interval_minutes: 60, target: true,
+     config: {host: eofe.fa.us2.oraclecloud.com, site: BNY-Careers, company: "BNY", searches: [Luxembourg]}}
+
+  # ============================================================ SmartRecruiters
+  - {id: sr-bank-of-china, name: "Bank of China Luxembourg", kind: smartrecruiters, interval_minutes: 120,
+     config: {company_id: BankOfChinaLuxembourg, company: "Bank of China Luxembourg"}}
+
+  # ============================================================ Sites carrière HTML
+  - id: candriam
+    name: "Candriam"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config: {list_urls: ["https://jobs.candriam.com/job/list-of-all-jobs.aspx?all=1&mode=list", "https://jobs.candriam.com/job/list-of-all-jobs.aspx?page=2&all=1&mode=list"],
+             link_pattern: "/job/job-[^\"'#?]+_\\d+\\.aspx", base_url: "https://jobs.candriam.com", company: "Candriam",
+             fetch_details: true, row_must_contain: [luxembourg]}
+  - id: amundi
+    name: "Amundi"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config: {list_urls: ["https://jobs.amundi.com/offre-de-emploi/liste-toutes-offres.aspx?all=1&mode=list",
+                         "https://jobs.amundi.com/offre-de-emploi/liste-toutes-offres.aspx?page=2&all=1&mode=list",
+                         "https://jobs.amundi.com/offre-de-emploi/liste-toutes-offres.aspx?page=3&all=1&mode=list"],
+             link_pattern: "/offre-de-emploi/emploi-[^\"'#?]+_\\d+\\.aspx", base_url: "https://jobs.amundi.com",
+             company: "Amundi (dont Fund Channel)", fetch_details: true, row_must_contain: [luxembourg]}
+  - id: quintet
+    name: "Quintet Private Bank"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config: {list_urls: ["https://www.quintet.com/en-gb/your-career-at-quintet/vacancies"], link_pattern: "/vacancies/job/[^\"'#?]+/\\d+",
+             base_url: "https://www.quintet.com", company: "Quintet Private Bank", anchor_must_contain: [luxembourg], fetch_details: true}
+  - id: ey-lux
+    name: "EY Luxembourg"
+    kind: links
+    interval_minutes: 60
+    config: {list_urls: ["https://careers.ey.com/ey/search/?q=&locationsearch=Luxembourg", "https://careers.ey.com/ey/search/?q=intern&locationsearch=Luxembourg"],
+             link_pattern: "/job/Luxembourg-[^\"'#?]+/\\d+/", base_url: "https://careers.ey.com", company: "EY Luxembourg", fetch_details: true}
+  - id: alter-domus
+    name: "Alter Domus"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config: {list_urls: ["https://careers.alterdomus.com/en/location/luxembourg-jobs/1298/2960313/2"], link_pattern: "/en/job/luxembourg/[^\"'#?]+/\\d+/\\d+",
+             base_url: "https://careers.alterdomus.com", company: "Alter Domus", fetch_details: true}
+  - id: esm
+    name: "ESM (Mécanisme européen de stabilité)"
+    kind: links
+    interval_minutes: 120
+    target: true
+    config: {list_urls: ["https://www.esm.europa.eu/careers/vacancies"], link_pattern: "/careers/vacancies/\\d+$",
+             base_url: "https://www.esm.europa.eu", company: "ESM", fetch_details: true}
+
+  # ============================================================ Moovijob (bloqué depuis GitHub -> passer par les alertes e-mail)
   - id: moovijob-stages
     name: "Moovijob — tous les stages"
     kind: moovijob
     interval_minutes: 20
-    config:
-      list_url: "https://www.moovijob.com/offres-emploi/jobs-luxembourg/contrat-stage"
-      max_pages: 10
-      assume_internship: true
-
+    enabled: false
+    force_enabled: false   # bloqué depuis les serveurs GitHub (403)
+    config: {list_url: "https://www.moovijob.com/offres-emploi/jobs-luxembourg/contrat-stage", max_pages: 10, assume_internship: true}
   - id: moovijob-vie-graduate
     name: "Moovijob — Graduate / V.I.E."
     kind: moovijob
     interval_minutes: 60
-    config:
-      list_url: "https://www.moovijob.com/offres-emploi/jobs-luxembourg/contrat-graduate-program-vie"
-      max_pages: 3
-      assume_internship: true
+    enabled: false
+    force_enabled: false   # bloqué depuis les serveurs GitHub (403)
+    config: {list_url: "https://www.moovijob.com/offres-emploi/jobs-luxembourg/contrat-graduate-program-vie", max_pages: 3, assume_internship: true}
 
-  # --- Sites carrière Workday (API publique, détection la plus rapide) ---
-  - id: wd-deutsche-bank-dws
-    name: "Deutsche Bank / DWS (Workday)"
-    kind: workday
-    interval_minutes: 30
-    target: true
-    config:
-      host: "db.wd3.myworkdayjobs.com"
-      tenant: "db"
-      site: "DBWebsite"
-      searches: ["Luxembourg intern", "Luxembourg internship", "Luxembourg trainee", "Luxembourg praktikum"]
-      location_must_contain: ["luxemb"]
-
-  - id: wd-lombard-odier
-    name: "Lombard Odier (Workday)"
-    kind: workday
-    interval_minutes: 60
-    target: true
-    config:
-      host: "lombardodier.wd3.myworkdayjobs.com"
-      tenant: "lombardodier"
-      site: "Lombard_Odier_Careers"
-      searches: ["Luxembourg"]
-      location_must_contain: ["luxemb"]
-
-  - id: wd-pgim
-    name: "PGIM (Workday)"
-    kind: workday
-    interval_minutes: 60
-    target: true
-    config:
-      host: "pru.wd5.myworkdayjobs.com"
-      tenant: "pru"
-      site: "Careers"
-      searches: ["Luxembourg intern", "Luxembourg"]
-      location_must_contain: ["luxemb"]
-
-  - id: wd-wellington
-    name: "Wellington Management (Workday, campus)"
-    kind: workday
-    interval_minutes: 60
-    target: true
-    config:
-      host: "wellington.wd5.myworkdayjobs.com"
-      tenant: "wellington"
-      site: "Campus"
-      searches: ["Luxembourg"]
-      location_must_contain: ["luxemb"]
-
-  # --- Sites carrière HTML ---
-  - id: candriam
-    name: "Candriam (site carrière)"
-    kind: links
-    interval_minutes: 60
-    target: true
-    config:
-      list_urls: ["https://jobs.candriam.com/job/list-of-all-jobs.aspx?all=1&mode=list"]
-      link_pattern: "/job/job-[^\"'#?]+_\\d+\\.aspx"
-      base_url: "https://jobs.candriam.com"
-      company: "Candriam"
-      fetch_details: true
-      require_location: ["luxembourg"]
-
-  - id: quintet
-    name: "Quintet Private Bank (site carrière)"
-    kind: links
-    interval_minutes: 60
-    target: true
-    config:
-      list_urls: ["https://www.quintet.com/en-gb/your-career-at-quintet/vacancies"]
-      link_pattern: "/vacancies/job/[^\"'#?]+/\\d+"
-      base_url: "https://www.quintet.com"
-      company: "Quintet Private Bank"
-      anchor_must_contain: ["luxembourg"]
-      fetch_details: true
-
-  # --- Alertes e-mail (désactivé tant que la boîte Gmail dédiée n'est pas configurée) ---
+  # ============================================================ Alertes e-mail (Moovijob, LinkedIn, jobs.lu, Indeed, JobTeaser…)
   - id: email-alerts
-    name: "Alertes e-mail (LinkedIn, jobs.lu, Indeed, JobTeaser...)"
+    name: "Alertes e-mail (Moovijob, LinkedIn, jobs.lu, Indeed, JobTeaser…)"
     kind: email
     interval_minutes: 15
     enabled: false
-    config:
-      imap_host: "imap.gmail.com"
-      folder: "INBOX"
-      lookback_days: 3
+    config: {imap_host: imap.gmail.com, folder: INBOX, lookback_days: 3}

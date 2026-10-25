@@ -91,7 +91,7 @@ def parse_jsonld_jobposting(soup: BeautifulSoup) -> Optional[dict]:
 
 
 def main_text(soup: BeautifulSoup) -> str:
-    for sel in ["main", "article", "[class*=job-description]", "[class*=description]", "[id*=description]", "body"]:
+    for sel in ["#contenu-ficheoffre", "main", "article","[class*=job-description]", "[class*=description]", "[id*=description]", "body"]:
         node = soup.select_one(sel)
         if node and len(node.get_text(strip=True)) > 200:
             for bad in node.select("nav, header, footer, script, style, noscript, form"):
@@ -101,8 +101,8 @@ def main_text(soup: BeautifulSoup) -> str:
 
 
 def apply_jsonld(job: RawJob, jp: dict) -> None:
-    if jp.get("title") and not job.title:
-        job.title = jp["title"]
+    if jp.get("title"):
+        job.title = html_to_text(str(jp["title"])) or job.title  # titre propre (le texte du lien contient parfois le lieu)
     org = jp.get("hiringOrganization")
     if isinstance(org, dict) and org.get("name") and not job.company:
         job.company = org["name"]

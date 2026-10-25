@@ -306,3 +306,48 @@ def test_message_format_contains_required_fields():
     for frag in ["81/100", "PRIORITAIRE", "Fund Analyst &lt;Intern&gt;", "Candriam", "23/10/2026", "24/10 12:00",
                  "6 mois", "mai 2027", "Pourquoi", "Missions", "Prérequis", "Moovijob"]:
         assert frag in m, frag
+
+
+def test_oracle_and_smartrecruiters_connectors():
+    from radar.connectors.oracle_hcm import OracleHCMConnector
+    from radar.connectors.smartrecruiters import SmartRecruitersConnector
+    lst = {"items": [{"TotalJobsCount": 2, "requisitionList": [
+        {"Id": "210", "Title": "Fund Services Intern", "PrimaryLocation": "Senningerberg, Luxembourg", "PostedDate": "2026-10-20"},
+        {"Id": "211", "Title": "Analyst", "PrimaryLocation": "London, United Kingdom", "PostedDate": "2026-10-20"}]}]}
+    det = {"items": [{"ExternalDescriptionStr": "<p>Support the transfer agency team</p>", "JobSchedule": "Full time"}]}
+    sess = FakeSession({r"recruitingCEJobRequisitions$": FakeResp(lst), r"Details$": FakeResp(det)})
+    c = OracleHCMConnector({"id": "or", "name": "JPM", "config": {"host": "h.oraclecloud.com", "site": "CX_1", "company": "JPM"}}, session=sess)
+    c.delay_seconds = 0
+    res = c.fetch()
+    assert [j.title for j in res.jobs] == ["Fund Services Intern"]
+    j = c.enrich(res.jobs[0])
+    assert j.url.endswith("/sites/CX_1/job/210") and "transfer agency" in j.description
+    assert j.published_at.date().isoformat() == "2026-10-20" and not j.published_is_estimate
+
+    sr = {"totalFound": 2, "content": [
+        {"id": "1", "name": "Intern Credit", "location": {"city": "Luxembourg", "country": "lu"}, "releasedDate": "2026-10-23T08:00:00.000Z"},
+        {"id": "2", "name": "Manager Vienna", "location": {"city": "Vienna", "country": "at"}}]}
+    sess = FakeSession({r"/postings$": FakeResp(sr), r"/postings/1$": FakeResp({"jobAd": {"sections": {"jobDescription": {"text": "<p>Credit analysis</p>"}}}})})
+    c = SmartRecruitersConnector({"id": "sr", "name": "BoC", "config": {"company_id": "BoC"}}, session=sess)
+    c.delay_seconds = 0
+    res = c.fetch()
+    assert [j.title for j in res.jobs] == ["Intern Credit"]
+    assert "Credit analysis" in c.enrich(res.jobs[0]).description
+
+
+def test_links_row_filter_amundi_style():
+    html = """<ul><li class="ts-offer-list-item"><h3><a href="/offre-de-emploi/emploi-stage-business-analyst-fund-channel-h-f_1.aspx">STAGE - Business Analyst - FUND CHANNEL H/F</a></h3>
+      <ul><li>Stage</li><li>Fund Channel</li><li>Luxembourg</li></ul></li>
+      <li class="ts-offer-list-item"><h3><a href="/offre-de-emploi/emploi-stage-evenementiel-h-f_2.aspx">Stage - Evénementiel H/F</a></h3>
+      <ul><li>Stage</li><li>Amundi</li><li>France</li></ul></li></ul>"""
+    jobs = parse_links(html, "https://jobs.amundi.com", re.compile(r"/offre-de-emploi/emploi-[^\"'#?]+_\d+\.aspx"), "amundi",
+                       "Amundi", [], ["luxembourg"])
+    assert len(jobs) == 1 and jobs[0].location == "Luxembourg" and jobs[0].contract == "Stage"
+
+
+def test_sources_yaml_is_valid():
+    from radar.connectors import REGISTRY
+    srcs = yaml.safe_load((ROOT / "config/sources.yaml").read_text())["sources"]
+    ids = [s["id"] for s in srcs]
+    assert len(ids) == len(set(ids)) and len(ids) >= 30
+    assert all(s["kind"] in REGISTRY for s in srcs)

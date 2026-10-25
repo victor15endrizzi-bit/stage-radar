@@ -2,11 +2,15 @@ from .base import Connector
 from .email_alerts import EmailAlertsConnector
 from .links import LinksConnector
 from .moovijob import MoovijobConnector
+from .oracle_hcm import OracleHCMConnector
+from .smartrecruiters import SmartRecruitersConnector
 from .workday import WorkdayConnector
 
 REGISTRY = {
     "moovijob": MoovijobConnector,
     "workday": WorkdayConnector,
+    "oracle": OracleHCMConnector,
+    "smartrecruiters": SmartRecruitersConnector,
     "links": LinksConnector,
     "email": EmailAlertsConnector,
 }
