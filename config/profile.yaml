@@ -1,0 +1,78 @@
+# Profil et critères de classement.
+# Ces valeurs sont copiées dans la base au premier lancement (commande `seed`).
+# Ensuite, tu les modifies depuis la page "Paramètres" du tableau de bord : pas besoin de toucher au code.
+
+profile:
+  summary: >
+    M2 MSc Financial Markets & Investments (SKEMA, spé Asset Management), CFA Level I, AMF.
+    Expériences au Luxembourg : Fund Channel (référentiel fonds, MiFID II), CACEIS (KYC).
+    Cible : stage de fin d'études au Luxembourg.
+  target_locations: [luxembourg, munsbach, strassen, leudelange, senningerberg, bertrange, hesperange, kirchberg, howald, belval, esch, windhof, capellen, mamer, contern, betzdorf]
+
+# Seuils de priorité (score sur 100)
+thresholds:
+  priority: 60      # >= 60 : "Prioritaire" -> alerte immédiate
+  interesting: 35   # 35-59 : "Intéressante" -> alerte immédiate (modifiable) ; < 35 : historique + récap quotidien
+
+notifications:
+  immediate_min_score: 35        # score minimum pour une alerte Telegram immédiate
+  digest_enabled: true           # récap quotidien (Telegram) des offres sous le seuil
+  quiet_hours: [23, 7]           # pas d'alerte immédiate entre 23h et 7h (heure de Paris) ; envoyées à 7h
+  notify_non_internships: false  # CDI/CDD : jamais notifiés par défaut
+  source_failure_alert_after: 3  # alerte si une source échoue N fois de suite
+
+# Familles de critères. Chaque famille a un poids (points max) et des mots-clés
+# (FR / EN / DE). Un mot-clé dans le TITRE compte plein ; dans la description, il compte à moitié.
+# Le meilleur score de famille "métier" est retenu (pas de cumul), puis bonus/malus s'ajoutent.
+families:
+  am_front:
+    label: "Gestion d'actifs — front (gestion, analyse, allocation)"
+    weight: 45
+    keywords: [portfolio manag, gestion de portefeuille, gestionnaire de portefeuille, gérant, asset manag, gestion d'actifs, investment analyst, investment team, investment management, multi-asset, multi asset, asset allocation, allocation d'actifs, fund selection, sélection de fonds, multi-manag, multi manag, fund analyst, analyste fonds, equity research, fixed income, credit research, research analyst, buy-side, strategist, investment strateg, discretionary, gestion discrétionnaire, fund manager, fondsmanag, portfoliomanag, private markets, private equity, alternative invest]
+  am_middle:
+    label: "Gestion d'actifs — middle (risk, performance, contrôle)"
+    weight: 40
+    keywords: [risk manag, gestion des risques, market risk, risque de marché, risk analy, investment risk, performance, attribution, investment limits, investment compliance, risk monitoring, valuation, valorisation, middle office, product manag, fund product, ucits, aifm, aifmd, management company, manco, liquidity risk, risk control, risikomanag, quant]
+  market_finance:
+    label: "Finance de marché (dette, structurés, trésorerie, salle)"
+    weight: 40
+    keywords: [debt capital market, dcm, structured product, produits structurés, structured finance, financial markets, marchés financiers, global markets, capital markets, trading, trader, execution desk, dealing, treasury, trésorerie, alm, sales trading, fixed income sales, derivatives, dérivés, bonds, obligataire, securities lending, repo, money market]
+  finance_adjacent:
+    label: "Finance adjacente (wealth, fonds, banque, crédit, conformité)"
+    weight: 25
+    keywords: [wealth manag, gestion de fortune, private bank, banque privée, relationship manag, client advisor, depositary, dépositaire, fund accounting, comptabilité de fonds, fund administration, transfer agent, investor services, asset servicing, corporate banking, credit analy, analyse crédit, crédit, lending, compliance, conformité, kyc, aml, financial analyst, fund controlling, fund services, fund, fonds, banking, banque, investment, finance]
+
+# Bonus / malus (points)
+modifiers:
+  internship_bonus: 10           # c'est bien un stage / trainee / V.I.E.
+  target_company_bonus: 8        # entreprise de ta liste cible
+  master_level_bonus: 5          # Master / Bac+5 demandé
+  low_level_malus: -10           # BTS / Bachelor uniquement
+  recent_bonus: 5                # publiée il y a moins de 48 h (si la date est fiable)
+  skills_bonus_per_hit: 2        # compétences que tu as (CFA, Excel, VBA, Python, SQL, Bloomberg) — max 6
+  skills_bonus_max: 6
+  off_target_malus: -35          # métier hors finance (RH, marketing, IT dev, hôtellerie...)
+  feedback_company_step: 6       # tes 👍/👎 sur une entreprise ajustent ses offres futures (±18 max)
+  feedback_company_max: 18
+
+skills: [cfa, excel, vba, python, sql, bloomberg, power bi, mifid, ucits, kyc]
+
+off_target_keywords: [ressources humaines, human resources, " hr ", recrutement, recruitment, talent acquisition, payroll, marketing, communication, graphic, design, réception, receptionist, hôtel, hotel, restauration, cuisine, chef de rang, logistique, logistics, supply chain, production, mécanique, électricien, engineering, ingénieur, r&d, software develop, développeur, developer, devops, network engineer, infrastructure, système, data engineer, avocat, juriste, legal, droit, fiscaliste, tax associate, steuer, santé, médical, nurse, infirmier, educator, éducateur, vente en magasin, sales assistant, procurement, achat, facility, facilities, knowledge management, accessibilité, indesign]
+
+internship_keywords: [stage, stagiaire, intern, internship, trainee, praktikum, praktikant, werkstudent, v.i.e, vie , volontariat, graduate program, off-cycle, alternance, apprenti]
+
+target_companies: [spuerkeess, bcee, bil, banque internationale, banque de luxembourg, bgl, bnp paribas, quintet, pictet, candriam, amundi, dws, deutsche bank, lombard odier, edmond de rothschild, rothschild, nordea, schroders, fidelity, jp morgan, jpmorgan, ubs, ing, société générale, societe generale, natixis, axa, allianz global, blackrock, franklin templeton, invesco, eurizon, generali, union investment, deka, dz privatbank, raiffeisen, degroof, indosuez, massena, wellington, pgim, waystone, fundrock, lemanik, mirova, carmignac, m&g, aberdeen, vontobel, julius baer, state street, northern trust, clearstream, alter domus, apex]
+
+statuses:
+  - {key: nouvelle, label: "Nouvelle offre"}
+  - {key: a_examiner, label: "À examiner"}
+  - {key: en_preparation, label: "Candidature en préparation"}
+  - {key: envoyee, label: "Candidature envoyée"}
+  - {key: entretien, label: "Entretien"}
+  - {key: offre, label: "Offre reçue"}
+  - {key: refus, label: "Refus"}
+  - {key: abandonnee, label: "Abandonnée"}
+
+# Une candidature sans réponse depuis moins de N jours est "en attente récente" (pas comptée comme sans réponse)
+stats:
+  no_answer_after_days: 21

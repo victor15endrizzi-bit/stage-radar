@@ -1,0 +1,9 @@
+{
+  "name": "Radar de stages",
+  "short_name": "Radar",
+  "start_url": "./#home",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": []
+}

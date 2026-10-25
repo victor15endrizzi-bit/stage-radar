@@ -1,0 +1,117 @@
+# Sources surveillées. Copiées en base au premier lancement (`seed`), ensuite
+# activables / désactivables depuis la page "Sources" du tableau de bord.
+#
+# kind:
+#   moovijob : pages de liste Moovijob (HTML public, autorisé par robots.txt)
+#   workday  : API JSON publique des sites carrière Workday (myworkdayjobs.com)
+#   links    : page carrière HTML générique ; on extrait les liens d'offres via un motif (regex)
+#   email    : alertes e-mail (LinkedIn, jobs.lu, Indeed, JobTeaser...) lues dans une boîte Gmail dédiée
+#
+# interval_minutes : fréquence minimale entre deux passages pour cette source.
+
+sources:
+  # --- Agrégateur n°1 au Luxembourg : toutes les offres de stage ---
+  - id: moovijob-stages
+    name: "Moovijob — tous les stages"
+    kind: moovijob
+    interval_minutes: 20
+    config:
+      list_url: "https://www.moovijob.com/offres-emploi/jobs-luxembourg/contrat-stage"
+      max_pages: 10
+      assume_internship: true
+
+  - id: moovijob-vie-graduate
+    name: "Moovijob — Graduate / V.I.E."
+    kind: moovijob
+    interval_minutes: 60
+    config:
+      list_url: "https://www.moovijob.com/offres-emploi/jobs-luxembourg/contrat-graduate-program-vie"
+      max_pages: 3
+      assume_internship: true
+
+  # --- Sites carrière Workday (API publique, détection la plus rapide) ---
+  - id: wd-deutsche-bank-dws
+    name: "Deutsche Bank / DWS (Workday)"
+    kind: workday
+    interval_minutes: 30
+    target: true
+    config:
+      host: "db.wd3.myworkdayjobs.com"
+      tenant: "db"
+      site: "DBWebsite"
+      searches: ["Luxembourg intern", "Luxembourg internship", "Luxembourg trainee", "Luxembourg praktikum"]
+      location_must_contain: ["luxemb"]
+
+  - id: wd-lombard-odier
+    name: "Lombard Odier (Workday)"
+    kind: workday
+    interval_minutes: 60
+    target: true
+    config:
+      host: "lombardodier.wd3.myworkdayjobs.com"
+      tenant: "lombardodier"
+      site: "Lombard_Odier_Careers"
+      searches: ["Luxembourg"]
+      location_must_contain: ["luxemb"]
+
+  - id: wd-pgim
+    name: "PGIM (Workday)"
+    kind: workday
+    interval_minutes: 60
+    target: true
+    config:
+      host: "pru.wd5.myworkdayjobs.com"
+      tenant: "pru"
+      site: "Careers"
+      searches: ["Luxembourg intern", "Luxembourg"]
+      location_must_contain: ["luxemb"]
+
+  - id: wd-wellington
+    name: "Wellington Management (Workday, campus)"
+    kind: workday
+    interval_minutes: 60
+    target: true
+    config:
+      host: "wellington.wd5.myworkdayjobs.com"
+      tenant: "wellington"
+      site: "Campus"
+      searches: ["Luxembourg"]
+      location_must_contain: ["luxemb"]
+
+  # --- Sites carrière HTML ---
+  - id: candriam
+    name: "Candriam (site carrière)"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config:
+      list_urls: ["https://jobs.candriam.com/job/list-of-all-jobs.aspx?all=1&mode=list"]
+      link_pattern: "/job/job-[^\"'#?]+_\\d+\\.aspx"
+      base_url: "https://jobs.candriam.com"
+      company: "Candriam"
+      fetch_details: true
+      require_location: ["luxembourg"]
+
+  - id: quintet
+    name: "Quintet Private Bank (site carrière)"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config:
+      list_urls: ["https://www.quintet.com/en-gb/your-career-at-quintet/vacancies"]
+      link_pattern: "/vacancies/job/[^\"'#?]+/\\d+"
+      base_url: "https://www.quintet.com"
+      company: "Quintet Private Bank"
+      anchor_must_contain: ["luxembourg"]
+      fetch_details: true
+
+  # --- Alertes e-mail (désactivé tant que la boîte Gmail dédiée n'est pas configurée) ---
+  - id: email-alerts
+    name: "Alertes e-mail (LinkedIn, jobs.lu, Indeed, JobTeaser...)"
+    kind: email
+    interval_minutes: 15
+    enabled: false
+    config:
+      imap_host: "imap.gmail.com"
+      folder: "INBOX"
+      lookback_days: 3
