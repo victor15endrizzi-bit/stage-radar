@@ -38,7 +38,7 @@ RULES = [
     ("wttj", re.compile(r"(https://www\.welcometothejungle\.com/[a-z]{2}/companies/[^/]+/jobs/[^?\s\"']+)"), lambda m: m.group(1)),
     ("bnpparibas", re.compile(r"(https://group\.bnpparibas/(?:en/careers/job-offer|emploi-carriere/offre-emploi)/[a-z0-9-]+)"), lambda m: m.group(1)),
     ("ubs", re.compile(r"ubs\.com/.*?[?&](?:jobid|jobId)=(\d+)"), lambda m: f"https://jobs.ubs.com/TGnewUI/Search/home/HomeWithPreLoad?partnerid=25008&siteid=5012&PageType=JobDetails&jobid={m.group(1)}"),
-    ("societegenerale", re.compile(r"(https://careers\.societegenerale\.com/(?:[a-z]{2}/)?(?:job-offers|offres-d-emploi-et-stages|sg_careers_offers_entity)/[A-Za-z0-9_-]+)"), lambda m: m.group(1)),
+    ("societegenerale", re.compile(r"(https://careers\.societegenerale\.com/(?:[a-z]{2}/)?(?:job-offers|offres-d-emploi(?:-et-stages)?|sg_careers_offers_entity)/[A-Za-z0-9_-]+)"), lambda m: m.group(1)),
     ("eib", re.compile(r"erecruitment\.eib\.org/.*?JobOpeningId=(\d+)", re.I), lambda m: f"https://erecruitment.eib.org/psc/hr/EIBJOBS/CAREERS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_JBPST_FL&Action=U&FOCUS=Applicant&SiteId=1&JobOpeningId={m.group(1)}&PostingSeq=1"),
     ("skeeled", re.compile(r"(https://app\.skeeled\.com/offer/[a-z]/[0-9a-f]{24})"), lambda m: m.group(1)),
     ("efinancialcareers", re.compile(r"(https://www\.efinancialcareers\.[a-z.]+/jobs-[^?\s\"']+\.id\d+)"), lambda m: m.group(1)),
