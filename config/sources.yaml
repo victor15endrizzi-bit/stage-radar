@@ -194,5 +194,6 @@ sources:
     name: "Alertes e-mail (Moovijob, LinkedIn, jobs.lu, Indeed, JobTeaser…)"
     kind: email
     interval_minutes: 15
-    enabled: false
+    enabled: true
+    force_enabled: true   # boîte Gmail configurée le 01/11/2026
     config: {imap_host: imap.gmail.com, folder: INBOX, lookback_days: 3}
