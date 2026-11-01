@@ -8,10 +8,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Action"
+        description: "Action (auto = passage normal, utilisé par cron-job.org)"
         type: choice
         default: run
-        options: [run, test-notify, digest, seed, check-source, rescore]
+        options: [run, auto, test-notify, digest, seed, check-source, rescore]
       source:
         description: "Identifiant de source (pour check-source, ou run sur une seule source)"
         required: false
@@ -57,6 +57,7 @@ jobs:
         run: |
           case "${{ inputs.mode }}" in
             run)          python -m radar seed && python -m radar run ${{ inputs.source && format('--source {0} --force', inputs.source) || '--force' }} ;;
+            auto)         python -m radar seed && python -m radar run ;;   # déclenchement externe (cron-job.org) : respecte la fréquence de chaque source
             check-source) python -m radar check-source "${{ inputs.source }}" ;;
             *)            python -m radar ${{ inputs.mode }} ;;
           esac
