@@ -380,3 +380,35 @@ def test_internship_detection_on_real_titles():
     opt = {**SETTINGS, "notifications": {**SETTINGS["notifications"], "include_vie": True, "include_graduate": True}}
     assert detect_internship("VIE - Private Assets Distribution", "", "", opt)
     assert detect_internship("2027 BNY Analyst Program - Client Coverage", "", "", opt)
+
+
+def test_cornerstone_and_successfactors_connectors():
+    from radar.connectors.cornerstone import CornerstoneConnector
+    from radar.connectors.successfactors import SuccessFactorsConnector
+    page = FakeResp(text='csod.context={"corp":"spk","token":"TOK123","endpoints":{"cloud":"https://eu-fra.api.csod.com/"}}')
+    data = {"data": {"totalCount": 1, "requisitions": [{"requisitionId": 7, "postingEffectiveDate": "10/30/2026",
+            "displayJobTitle": "Stage conventionné - Debt Capital Markets (m/f/n)", "locations": [{"city": "LUXEMBOURG", "country": "LU"}],
+            "externalDescription": "<p>Émission obligataire, français et anglais</p>"}]}}
+    sess = FakeSession({r"careersite/1/home": page, r"rec-job-search": FakeResp(data)})
+    c = CornerstoneConnector({"id": "cs", "name": "SPK", "config": {"tenant": "spk", "company": "Spuerkeess"}}, session=sess)
+    c.delay_seconds = 0
+    j = c.fetch().jobs[0]
+    assert j.title.startswith("Stage conventionné") and j.published_at.month == 10 and j.published_at.day == 30
+    assert "requisition/7" in j.url and j.languages == ["FR", "EN"]
+    assert analyze(j, SETTINGS, now=NOW).priority == "prioritaire"
+
+    xml = """<Jobs><Job><JobTitle><![CDATA[Internship - Funds Valuation]]></JobTitle><ReqId>125096</ReqId>
+      <filter1><label>Country</label><value>Luxembourg</value></filter1><filter2><label>City</label><value>Luxembourg</value></filter2>
+      <Job-Description><![CDATA[<p>Valuation of hedge funds. Internship agreement compulsory.</p>]]></Job-Description></Job>
+      <Job><JobTitle><![CDATA[Intern Geneva]]></JobTitle><ReqId>2</ReqId><filter1><label>Country</label><value>Switzerland</value></filter1></Job></Jobs>"""
+    sess = FakeSession({r"/career": FakeResp(text=xml)})
+    c = SuccessFactorsConnector({"id": "sf", "name": "Pictet", "config": {"host": "career012.successfactors.eu", "company_id": "banquepict", "company": "Pictet"}}, session=sess)
+    c.delay_seconds = 0
+    res = c.fetch()
+    assert [j.title for j in res.jobs] == ["Internship - Funds Valuation"]
+    assert res.jobs[0].url.endswith("career_job_req_id=125096") and "hedge funds" in res.jobs[0].description
+
+
+def test_user_agent_is_ascii():
+    from radar.connectors.base import USER_AGENT
+    USER_AGENT.encode("ascii")  # un « é » dans un en-tête HTTP fait échouer certains sites (400)

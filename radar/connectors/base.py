@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 USER_AGENT = (
     "Mozilla/5.0 (compatible; StageRadar/1.0; recherche de stage personnelle, "
-    "1 requête toutes les quelques secondes)"
+    "1 requete toutes les quelques secondes)"
 )
 
 
@@ -91,7 +91,7 @@ def parse_jsonld_jobposting(soup: BeautifulSoup) -> Optional[dict]:
 
 
 def main_text(soup: BeautifulSoup) -> str:
-    for sel in ["#contenu-ficheoffre", "main", "article","[class*=job-description]", "[class*=description]", "[id*=description]", "body"]:
+    for sel in ["[itemprop=description]", "#contenu-ficheoffre", "main", "article", "[class*=job-description]", "[class*=description]", "[id*=description]", "body"]:
         node = soup.select_one(sel)
         if node and len(node.get_text(strip=True)) > 200:
             for bad in node.select("nav, header, footer, script, style, noscript, form"):
@@ -135,11 +135,14 @@ def enrich_from_page(conn: Connector, job: RawJob) -> RawJob:
     jp = parse_jsonld_jobposting(soup)
     if jp:
         apply_jsonld(job, jp)
-    if not job.description or len(job.description) < 200:
-        job.description = main_text(soup)
+    page_text = main_text(soup)
+    if not job.description or len(page_text) > 2 * len(job.description):  # JSON-LD parfois tronqué
+        job.description = page_text
     if not job.title:
-        h1 = soup.find("h1")
-        job.title = h1.get_text(" ", strip=True) if h1 else job.title
+        node = soup.select_one("[itemprop=title]") or soup.find("h1")
+        og = soup.find("meta", property="og:title")
+        job.title = (node.get_text(" ", strip=True) if node and node.get_text(strip=True) else
+                     (og.get("content", "").strip() if og else "")) or job.title
     if not job.languages:
         job.languages = extract_languages(job.description)
     return job

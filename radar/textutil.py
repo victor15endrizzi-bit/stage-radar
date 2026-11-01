@@ -245,10 +245,13 @@ def parse_date_any(s: str) -> Optional[datetime]:
     s = s.strip()
     m = re.search(r"(\d{1,2})[/.](\d{1,2})[/.](20\d\d)", s)
     if m:
-        try:
-            return datetime(int(m.group(3)), int(m.group(2)), int(m.group(1)), tzinfo=timezone.utc)
-        except ValueError:
-            return None
+        a, b, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        for day, month in ((a, b), (b, a)):  # jj/mm (Europe) puis mm/jj (États-Unis)
+            try:
+                return datetime(y, month, day, tzinfo=timezone.utc)
+            except ValueError:
+                continue
+        return None
     try:
         from dateutil import parser as dp
         d = dp.isoparse(s) if re.match(r"\d{4}-\d{2}-\d{2}", s) else dp.parse(s, dayfirst=True)

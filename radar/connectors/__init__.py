@@ -1,4 +1,7 @@
 from .base import Connector
+from .cornerstone import CornerstoneConnector
+from .sitemap import SitemapConnector
+from .successfactors import SuccessFactorsConnector
 from .email_alerts import EmailAlertsConnector
 from .links import LinksConnector
 from .moovijob import MoovijobConnector
@@ -11,6 +14,9 @@ REGISTRY = {
     "workday": WorkdayConnector,
     "oracle": OracleHCMConnector,
     "smartrecruiters": SmartRecruitersConnector,
+    "cornerstone": CornerstoneConnector,
+    "successfactors": SuccessFactorsConnector,
+    "sitemap": SitemapConnector,
     "links": LinksConnector,
     "email": EmailAlertsConnector,
 }

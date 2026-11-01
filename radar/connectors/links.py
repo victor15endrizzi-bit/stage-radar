@@ -36,8 +36,11 @@ class LinksConnector(Connector):
     def enrich(self, job: RawJob) -> RawJob:
         if self.config.get("fetch_details", True):
             enrich_from_page(self, job)
+        if not job.location and self.config.get("default_location"):
+            job.location = self.config["default_location"]
         req = [norm(x) for x in self.config.get("require_location", [])]
-        if req and not any(r in norm(job.location + " " + job.description[:3000] + " " + job.title) for r in req):
+        where = job.location if job.location.strip() else (job.description[:3000] + " " + job.title)
+        if req and not any(r in norm(where) for r in req):
             job.extra["drop"] = "hors zone"
         return job
 

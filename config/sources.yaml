@@ -73,6 +73,59 @@ sources:
   - {id: sr-bank-of-china, name: "Bank of China Luxembourg", kind: smartrecruiters, interval_minutes: 120,
      config: {company_id: BankOfChinaLuxembourg, company: "Bank of China Luxembourg"}}
 
+  # ============================================================ Banques luxembourgeoises (ajoutées le 01/11/2026)
+  - {id: cs-spuerkeess, name: "Spuerkeess (BCEE)", kind: cornerstone, interval_minutes: 30, target: true,
+     config: {tenant: spuerkeess, career_site: 1, culture_id: 3, culture_name: fr-FR, company: "Spuerkeess", countries: [LU]}}
+  - {id: cs-bil, name: "BIL (Banque Internationale à Luxembourg)", kind: cornerstone, interval_minutes: 30, target: true,
+     config: {tenant: bil, career_site: 1, culture_id: 1, culture_name: en-US, company: "BIL", countries: [LU]}}
+  - {id: sf-pictet, name: "Pictet Luxembourg", kind: successfactors, interval_minutes: 30, target: true,
+     config: {host: career012.successfactors.eu, company_id: banquepict, company: "Pictet", country: Luxembourg}}
+  - id: banque-de-luxembourg
+    name: "Banque de Luxembourg"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config: {list_urls: ["https://jobs.banquedeluxembourg.com/offre-de-emploi/liste-toutes-offres.aspx?all=1&mode=list",
+                         "https://jobs.banquedeluxembourg.com/offre-de-emploi/liste-toutes-offres.aspx?page=2&all=1&mode=list"],
+             link_pattern: "/offre-de-emploi/emploi-[^\"'#?]+_\\d+\\.aspx", base_url: "https://jobs.banquedeluxembourg.com",
+             company: "Banque de Luxembourg", fetch_details: true, default_location: Luxembourg}
+
+  # ============================================================ Plans de site (sitemap) — ajoutés le 01/11/2026
+  - {id: sm-deloitte, name: "Deloitte Luxembourg", kind: sitemap, interval_minutes: 60,
+     config: {sitemap_url: "https://jobs.deloitte.lu/sitemap.xml", link_pattern: "/job/", company: "Deloitte Luxembourg", default_location: Luxembourg}}
+  - {id: sm-kpmg, name: "KPMG Luxembourg", kind: sitemap, interval_minutes: 60,
+     config: {sitemap_url: "https://careers.kpmg.lu/sitemap.xml", link_pattern: "/job/", company: "KPMG Luxembourg", default_location: Luxembourg}}
+  - {id: sm-nordea, name: "Nordea (Luxembourg)", kind: sitemap, interval_minutes: 60, target: true,
+     config: {sitemap_url: "https://careers.nordea.com/sitemap.xml", link_pattern: "/job/", url_must_contain: [luxembourg, l-2220, neudorf],
+              company: "Nordea", default_location: Luxembourg}}
+  - id: caceis
+    name: "CACEIS"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config: {list_urls: ["https://jobs.caceis.com/job/list-of-all-jobs.aspx?all=1&mode=list", "https://jobs.caceis.com/job/list-of-all-jobs.aspx?page=2&all=1&mode=list",
+                         "https://jobs.caceis.com/job/list-of-all-jobs.aspx?page=3&all=1&mode=list"],
+             link_pattern: "/offre-de-emploi/emploi-[^\"'#?]+_\\d+\\.aspx", base_url: "https://jobs.caceis.com", company: "CACEIS",
+             fetch_details: true, row_must_contain: [luxembourg, esch, munsbach]}
+  - id: deutsche-boerse-clearstream
+    name: "Clearstream / Deutsche Börse"
+    kind: links
+    interval_minutes: 120
+    target: true
+    config: {list_urls: ["https://careers.deutsche-boerse.com/search/?q=&locationsearch=Luxembourg"], link_pattern: "offer-redirect/\\?offerApiId=",
+             base_url: "https://careers.deutsche-boerse.com", company: "Clearstream (Deutsche Börse)", fetch_details: true,
+             require_location: [luxembourg, leudelange]}
+  - id: indosuez
+    name: "CA Indosuez Wealth"
+    kind: links
+    interval_minutes: 60
+    target: true
+    config: {list_urls: ["https://jobs.ca-indosuez.com/job/list-of-all-jobs.aspx?all=1&mode=list", "https://jobs.ca-indosuez.com/job/list-of-all-jobs.aspx?page=2&all=1&mode=list"],
+             link_pattern: "/(?:job/job|offre-de-emploi/emploi)-[^\"'#?]+_\\d+\\.aspx", base_url: "https://jobs.ca-indosuez.com", company: "CA Indosuez",
+             fetch_details: true, row_must_contain: [luxembourg]}
+  - {id: sr-iq-eq, name: "IQ-EQ", kind: smartrecruiters, interval_minutes: 120,
+     config: {company_id: IQEQ, company: "IQ-EQ"}}
+
   # ============================================================ Sites carrière HTML
   - id: candriam
     name: "Candriam"
@@ -104,7 +157,7 @@ sources:
     kind: links
     interval_minutes: 60
     config: {list_urls: ["https://careers.ey.com/ey/search/?q=&locationsearch=Luxembourg", "https://careers.ey.com/ey/search/?q=intern&locationsearch=Luxembourg"],
-             link_pattern: "/job/Luxembourg-[^\"'#?]+/\\d+/", base_url: "https://careers.ey.com", company: "EY Luxembourg", fetch_details: true}
+             link_pattern: "/job/Luxembourg-[^\"'#?]+/\\d+/", base_url: "https://careers.ey.com", company: "EY Luxembourg", fetch_details: true, default_location: Luxembourg}
   - id: alter-domus
     name: "Alter Domus"
     kind: links
@@ -118,7 +171,7 @@ sources:
     interval_minutes: 120
     target: true
     config: {list_urls: ["https://www.esm.europa.eu/careers/vacancies"], link_pattern: "/careers/vacancies/\\d+$",
-             base_url: "https://www.esm.europa.eu", company: "ESM", fetch_details: true}
+             base_url: "https://www.esm.europa.eu", company: "ESM", fetch_details: true, default_location: Luxembourg}
 
   # ============================================================ Moovijob (bloqué depuis GitHub -> passer par les alertes e-mail)
   - id: moovijob-stages
