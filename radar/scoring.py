@@ -15,6 +15,7 @@ Chaque point est expliqué dans `details`.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
@@ -22,6 +23,48 @@ from typing import Optional
 from .models import RawJob
 from .textutil import (clean_title, company_norm, extract_duration, extract_languages, extract_sections,
                        extract_start, find_keywords, norm)
+
+
+# Mots entiers uniquement (« intern » ne doit PAS reconnaître « international » ni « internal »)
+INTERN_WORDS = re.compile(
+    r"(?<![a-z])(stages?|stagiaires?|interns?|internships?|trainees?|traineeships?|praktikum|praktikant(?:in|en)?|"
+    r"werkstudent(?:in)?|off-cycle|summer analyst)(?![a-z])")
+VIE_WORDS = re.compile(r"(?<![a-z])(v\.?i\.?e\.?|volontariat international)(?![a-z])")
+GRADUATE_WORDS = re.compile(r"(?<![a-z])(graduate (?:program|programme|scheme)|analyst program(?:me)?)(?![a-z])")
+ALTERNANCE_WORDS = re.compile(r"(?<![a-z])(alternance|alternant|apprenti|apprentissage|apprenticeship|work-study)(?![a-z])")
+SENIOR_WORDS = re.compile(
+    r"(?<![a-z])(senior|manager|head|director|directeur|vp|vice president|lead|expert|specialist|officer|"
+    r"associate|consultant|counsel|analyst ii|partner|chief)(?![a-z])")
+STRONG_DESC = ("convention de stage", "stage conventionne", "internship agreement", "school agreement",
+               "university agreement", "convention d'stage", "praktikumsvertrag")
+
+
+def detect_internship(title: str, contract: str, description: str, settings: dict,
+                      hint: Optional[bool] = None) -> bool:
+    """Vrai seulement pour un STAGE (ou, si tu les actives dans Paramètres : V.I.E., graduate, alternance).
+
+    Ordre : 1) mot « stage / intern / trainee… » dans le titre ou le type de contrat ;
+            2) la source dit explicitement « stage » ;
+            3) mention forte dans la description (« convention de stage »…) ET titre sans grade
+               (Senior, Manager, Associate, Officer…).
+    """
+    n = settings.get("notifications", {})
+    t = norm(title)
+    c = norm(contract)
+    if INTERN_WORDS.search(t) or INTERN_WORDS.search(c):
+        return True
+    if n.get("include_vie") and (VIE_WORDS.search(t) or VIE_WORDS.search(c)):
+        return True
+    if n.get("include_graduate") and GRADUATE_WORDS.search(t):
+        return True
+    if n.get("include_alternance") and (ALTERNANCE_WORDS.search(t) or ALTERNANCE_WORDS.search(c)):
+        return True
+    if VIE_WORDS.search(t) or GRADUATE_WORDS.search(t) or ALTERNANCE_WORDS.search(t):
+        return False  # explicitement autre chose qu'un stage
+    if hint is True and not SENIOR_WORDS.search(t):
+        return True
+    d = norm(description)
+    return any(p in d for p in STRONG_DESC) and not SENIOR_WORDS.search(t)
 
 
 @dataclass
@@ -86,12 +129,9 @@ def analyze(job: RawJob, settings: dict, company_bias: Optional[dict] = None,
         domain, domain_label = "autre", "Autre / non identifié"
 
     # --- stage ?
-    is_intern = job.is_internship_hint if job.is_internship_hint is not None else bool(
-        find_keywords(t_title + " " + norm(job.contract), settings.get("internship_keywords", []))
-        or "convention de stage" in t_desc or "internship agreement" in t_desc or "stage conventionne" in t_all
-    )
+    is_intern = detect_internship(title, job.contract, job.description, settings, job.is_internship_hint)
     if is_intern:
-        add(mods.get("internship_bonus", 10), "C'est un stage / trainee / V.I.E.")
+        add(mods.get("internship_bonus", 10), "C'est un stage")
 
     # --- entreprise cible
     cn = company_norm(job.company)

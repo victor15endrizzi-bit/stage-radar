@@ -18,7 +18,10 @@ notifications:
   immediate_min_score: 35        # score minimum pour une alerte Telegram immédiate
   digest_enabled: true           # récap quotidien (Telegram) des offres sous le seuil
   quiet_hours: [23, 7]           # pas d'alerte immédiate entre 23h et 7h (heure de Paris) ; envoyées à 7h
-  notify_non_internships: false  # CDI/CDD : jamais notifiés par défaut
+  notify_non_internships: false  # CDI/CDD : jamais notifiés (stages uniquement)
+  include_vie: false             # compter les V.I.E. comme des stages ?
+  include_graduate: false        # compter les Graduate / Analyst programs ?
+  include_alternance: false      # compter l'alternance ?
   source_failure_alert_after: 3  # alerte si une source échoue N fois de suite
 
 # Familles de critères. Chaque famille a un poids (points max) et des mots-clés

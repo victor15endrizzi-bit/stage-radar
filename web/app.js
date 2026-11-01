@@ -144,7 +144,7 @@ function viewOffers() {
       <div class="row wide">
         <button class="btn small ${f.fav ? "on" : ""}" id="f-fav">★ Favoris</button>
         <button class="btn small ${f.expired ? "on" : ""}" id="f-exp">Inclure expirées</button>
-        <button class="btn small ${f.all ? "on" : ""}" id="f-all">Inclure hors stage</button>
+        <button class="btn small ${f.all ? "on" : ""}" id="f-all">Voir aussi CDI / CDD</button>
       </div>
     </div>
     <div class="muted small" id="count"></div>
@@ -364,7 +364,9 @@ function viewSettings() {
       <label>Alerte Telegram immédiate à partir de<input type="number" name="immediate" value="${n.immediate_min_score ?? 35}" min="0" max="100"></label>
       <label>Heures calmes (pas d'alerte) de … à …<div class="row"><input type="number" name="q0" value="${n.quiet_hours?.[0] ?? 23}" min="0" max="23" style="width:80px"> h → <input type="number" name="q1" value="${n.quiet_hours?.[1] ?? 7}" min="0" max="23" style="width:80px"> h</div></label>
       <label>Récap quotidien du matin<select name="digest"><option value="true" ${n.digest_enabled !== false ? "selected" : ""}>activé</option><option value="false" ${n.digest_enabled === false ? "selected" : ""}>désactivé</option></select></label>
-      <label>Alerter aussi les CDI / CDD<select name="nonint"><option value="false" ${!n.notify_non_internships ? "selected" : ""}>non</option><option value="true" ${n.notify_non_internships ? "selected" : ""}>oui</option></select></label>
+      <label>Compter aussi les V.I.E. comme des stages<select name="vie"><option value="false" ${!n.include_vie ? "selected" : ""}>non (stages uniquement)</option><option value="true" ${n.include_vie ? "selected" : ""}>oui</option></select></label>
+      <label>Compter aussi les Graduate / Analyst programs<select name="grad"><option value="false" ${!n.include_graduate ? "selected" : ""}>non (stages uniquement)</option><option value="true" ${n.include_graduate ? "selected" : ""}>oui</option></select></label>
+      <label>Compter aussi l'alternance<select name="alt"><option value="false" ${!n.include_alternance ? "selected" : ""}>non (stages uniquement)</option><option value="true" ${n.include_alternance ? "selected" : ""}>oui</option></select></label>
       <label>Candidature « sans réponse » après (jours)<input type="number" name="noans" value="${s.stats?.no_answer_after_days ?? 21}"></label>
     </div></div>
     <h2>Critères de score</h2>
@@ -384,7 +386,7 @@ function viewSettings() {
     const f = Object.fromEntries(new FormData(e.target));
     const split = (t) => t.split(",").map((x) => x.trim()).filter(Boolean);
     s.thresholds = { priority: +f.th_priority, interesting: +f.th_interesting };
-    s.notifications = { ...n, immediate_min_score: +f.immediate, quiet_hours: [+f.q0, +f.q1], digest_enabled: f.digest === "true", notify_non_internships: f.nonint === "true" };
+    s.notifications = { ...n, immediate_min_score: +f.immediate, quiet_hours: [+f.q0, +f.q1], digest_enabled: f.digest === "true", notify_non_internships: false, include_vie: f.vie === "true", include_graduate: f.grad === "true", include_alternance: f.alt === "true" };
     s.stats = { ...(s.stats || {}), no_answer_after_days: +f.noans };
     for (const k of Object.keys(s.families || {})) s.families[k] = { label: f["fl_" + k], weight: +f["fw_" + k], keywords: split(f["fk_" + k]) };
     for (const k of Object.keys(f).filter((x) => x.startsWith("m_"))) s.modifiers[k.slice(2)] = +f[k];

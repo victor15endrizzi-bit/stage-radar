@@ -86,10 +86,16 @@ def cmd_run(store, only=None, force=False):
     return stats
 
 
+SCORING_VERSION = 2  # à incrémenter quand la logique de score change -> tout est recalculé une fois
+
+
 def maybe_rescore(store, settings):
     prof = next(iter(store.select("settings", eq={"key": "profile"})), None)
     last = store.get_setting("last_rescore")
-    if prof and prof.get("updated_at") and (not last or str(prof["updated_at"]) > str(last)):
+    if store.get_setting("scoring_version") != SCORING_VERSION:
+        cmd_rescore(store, settings)
+        store.set_setting("scoring_version", SCORING_VERSION)
+    elif prof and prof.get("updated_at") and (not last or str(prof["updated_at"]) > str(last)):
         cmd_rescore(store, settings)
     elif store.select("jobs", is_null=["score"], limit=1):  # offres ajoutées à la main
         cmd_rescore(store, settings, only_missing=True)
@@ -107,13 +113,14 @@ def cmd_rescore(store, settings=None, only_missing=False):
                      company=j.get("company") or "", location=j.get("location") or "", description=j.get("description") or "",
                      contract=j.get("contract") or "", published_at=parse_ts(j.get("published_at")),
                      published_is_estimate=bool(j.get("published_is_estimate")), languages=j.get("languages") or [],
-                     is_internship_hint=j.get("is_internship"))
+                     is_internship_hint=True if j.get("manual") else None)
         st = settings
         if j.get("first_source_id") in targets:
             st = {**settings, "target_companies": list(settings.get("target_companies", [])) + [raw.company]}
         a = analyze(raw, st, bias, now=parse_ts(j.get("detected_at")))
-        if a.score != j.get("score") or a.priority != j.get("priority"):
+        if a.score != j.get("score") or a.priority != j.get("priority") or a.is_internship != j.get("is_internship"):
             store.update_job(j["id"], {"score": a.score, "priority": a.priority, "domain": a.domain,
+                                       "is_internship": a.is_internship,
                                        "domain_label": a.domain_label,
                                        "analysis": {**(j.get("analysis") or {}), "details": a.details, "reasons": a.reasons}})
             n += 1

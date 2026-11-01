@@ -351,3 +351,32 @@ def test_sources_yaml_is_valid():
     ids = [s["id"] for s in srcs]
     assert len(ids) == len(set(ids)) and len(ids) >= 30
     assert all(s["kind"] in REGISTRY for s in srcs)
+
+
+INTERNSHIPS = ["Intern (Luxembourg)", "Internship Human Resources", "INTERNSHIP - Fund & Portfolio Oversight",
+               "WB Client Services – Account Manager Intern – Wholesale Bank", "Compliance Intern",
+               "Intern Risk Management - 6-month Internship", "STAGE - Business Analyst - FUND CHANNEL H/F",
+               "Trainee - AML KYC Employee Benefits", "Traineeship - Communications TRAINEE", "Tax Intern",
+               "Stagiaire Wealth Management & Support Commercial (6 mois) (H/F)", "Praktikant (m/w/d) Accounting",
+               "2027 BNY Summer Internship Program - Product Management (Luxembourg)", "Stage conventionné - Organisation"]
+NOT_INTERNSHIPS = ["International Finance, Valuation, Associate, Luxembourg", "International Finance, Valuation - VP",
+                   "12m Contract - International Fund Administration Analyst", "Country Senior Internal Auditor M/F",
+                   "Senior Business Line Anti-Financial Crime (BLAFC) Private Bank", "Internal Control Assistant / Assistant Vice President",
+                   "Senior Manager - International Tax - Financial Services", "Internal Audit - Consulting Senior",
+                   "Risk Assurance – Internal Audit / Internal Control Manager", "2027 BNY Analyst Program - Client Coverage",
+                   "VIE - Private Assets Distribution & Client Support (12 months)", "Fund Manager Operations Officer ( FM2) H/F",
+                   "Junior Auditor (m/f) | Starting September 2027", "Alternance - Chargé de clientèle"]
+
+
+def test_internship_detection_on_real_titles():
+    from radar.scoring import detect_internship
+    bad = [t for t in INTERNSHIPS if not detect_internship(t, "", "", SETTINGS)]
+    bad += [t for t in NOT_INTERNSHIPS if detect_internship(t, "Full time", "", SETTINGS)]
+    assert not bad, bad
+    # contrat « Stage » sur un titre neutre -> stage ; options V.I.E. / graduate activables
+    assert detect_internship("Fund Manager Operations Officer", "Stage", "", SETTINGS)
+    assert detect_internship("Business Analyst", "", "Convention de stage obligatoire.", SETTINGS)
+    assert not detect_internship("Senior Officer", "", "internship agreement", SETTINGS)
+    opt = {**SETTINGS, "notifications": {**SETTINGS["notifications"], "include_vie": True, "include_graduate": True}}
+    assert detect_internship("VIE - Private Assets Distribution", "", "", opt)
+    assert detect_internship("2027 BNY Analyst Program - Client Coverage", "", "", opt)
