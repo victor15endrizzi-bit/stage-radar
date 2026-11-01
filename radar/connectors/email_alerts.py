@@ -25,7 +25,9 @@ from ..models import RawJob, SourceResult
 from .base import Connector
 
 KNOWN_SENDERS = ("linkedin", "jobs.lu", "indeed", "jobteaser", "welcometothejungle", "moovijob",
-                 "glassdoor", "stepstone", "monster", "eures", "adem", "talent.com", "jobup")
+                 "glassdoor", "stepstone", "monster", "eures", "adem", "talent.com", "jobup",
+                 "bnpparibas", "bgl", "ubs", "societegenerale", "socgen", "eib.org", "skeeled",
+                 "efinancialcareers", "apec")
 
 RULES = [
     # (nom, regex sur l'URL, fonction -> id canonique)
@@ -34,6 +36,12 @@ RULES = [
     ("jobteaser", re.compile(r"jobteaser\.com/[a-z]{2}/job-offers/([0-9a-f-]{36}[^?\s\"']*)"), lambda m: f"https://www.jobteaser.com/fr/job-offers/{m.group(1)}"),
     ("jobs.lu", re.compile(r"(https?://[a-z]+\.jobs\.lu/[^?\s\"']*?(?:job|emploi|offre)[^?\s\"']*?\d{4,}[^?\s\"']*)"), lambda m: m.group(1)),
     ("wttj", re.compile(r"(https://www\.welcometothejungle\.com/[a-z]{2}/companies/[^/]+/jobs/[^?\s\"']+)"), lambda m: m.group(1)),
+    ("bnpparibas", re.compile(r"(https://group\.bnpparibas/(?:en/careers/job-offer|emploi-carriere/offre-emploi)/[a-z0-9-]+)"), lambda m: m.group(1)),
+    ("ubs", re.compile(r"ubs\.com/.*?[?&](?:jobid|jobId)=(\d+)"), lambda m: f"https://jobs.ubs.com/TGnewUI/Search/home/HomeWithPreLoad?partnerid=25008&siteid=5012&PageType=JobDetails&jobid={m.group(1)}"),
+    ("societegenerale", re.compile(r"(https://careers\.societegenerale\.com/(?:[a-z]{2}/)?(?:job-offers|offres-d-emploi-et-stages|sg_careers_offers_entity)/[A-Za-z0-9_-]+)"), lambda m: m.group(1)),
+    ("eib", re.compile(r"erecruitment\.eib\.org/.*?JobOpeningId=(\d+)", re.I), lambda m: f"https://erecruitment.eib.org/psc/hr/EIBJOBS/CAREERS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_JBPST_FL&Action=U&FOCUS=Applicant&SiteId=1&JobOpeningId={m.group(1)}&PostingSeq=1"),
+    ("skeeled", re.compile(r"(https://app\.skeeled\.com/offer/[a-z]/[0-9a-f]{24})"), lambda m: m.group(1)),
+    ("efinancialcareers", re.compile(r"(https://www\.efinancialcareers\.[a-z.]+/jobs-[^?\s\"']+\.id\d+)"), lambda m: m.group(1)),
     ("moovijob", re.compile(r"(https://(?:www|en|de)\.moovijob\.com/(?:offres-emploi|job-offers|stellenangebote)/(?!jobs-lux)[^/]+/[^?\s\"'/]+)"), lambda m: m.group(1)),
 ]
 
@@ -126,7 +134,7 @@ class EmailAlertsConnector(Connector):
 
     def enrich(self, job: RawJob) -> RawJob:
         # On ne lit pas les pages LinkedIn/Indeed (CGU) : on garde les infos de l'e-mail.
-        if job.extra.get("via") in ("moovijob", "wttj", "jobs.lu"):
+        if job.extra.get("via") in ("moovijob", "wttj", "jobs.lu", "bnpparibas", "societegenerale", "efinancialcareers"):
             try:
                 from .base import enrich_from_page
                 enrich_from_page(self, job)

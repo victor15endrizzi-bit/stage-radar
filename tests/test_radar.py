@@ -412,3 +412,13 @@ def test_cornerstone_and_successfactors_connectors():
 def test_user_agent_is_ascii():
     from radar.connectors.base import USER_AGENT
     USER_AGENT.encode("ascii")  # un « é » dans un en-tête HTTP fait échouer certains sites (400)
+
+
+def test_email_alert_bank_links():
+    html = """<a href="https://group.bnpparibas/en/careers/job-offer/intern-fund-services-luxembourg-m-f-6-months-1?utm=x">Intern Fund Services Luxembourg</a>
+    <p>BGL BNP Paribas · Luxembourg</p>
+    <a href="https://jobs.ubs.com/TGnewUI/Search/home/HomeWithPreLoad?partnerid=25008&siteid=5012&PageType=JobDetails&jobid=331234">Intern in Asset Servicing - 6 months</a>
+    <a href="https://careers.societegenerale.com/en/job-offers/internship-fund-accounting-luxembourg-250012345">Internship - Fund Accounting</a>"""
+    jobs = parse_alert_html(html, "email-alerts", NOW)
+    via = sorted(j.extra["via"] for j in jobs)
+    assert via == ["bnpparibas", "societegenerale", "ubs"], via
